@@ -15,7 +15,7 @@ from astropy.time import Time
 
 
 
-def make_queries(field):
+def make_queries(field,stepsize=100):
     """ make the queries"""
     
     # define the projection; the fields to get from the database
@@ -49,25 +49,42 @@ def make_queries(field):
                   }
 
     # define the filters
+    basefilter = {'candidate.field': int(field), 
+                  #'$or': [{'classifications.braai': {'$gt': 0.9}}, {'candidate.drb': {'$gt': 0.9} }],
+                  'candidate.drb': {'$gt': 0.9},
+                  'candidate.distnr': {'$gt': 1.5},
+                  'candidate.isdiffpos': {'$in': ['f','0']},
+                  '$expr': { "$and" : [{'$not': [{'$and': [{'$lt': ['$candidate.distpsnr1',5]},
+                                                 {'$lt': ['$candidate.srmag1',17]}] }]},
+                                       {'$not': [{'$and': [{'$lt': ['$candidate.distpsnr2',5]},
+                                                 {'$lt': ['$candidate.srmag2',17]}] }]},
+                                       {'$not': [{'$and': [{'$lt': ['$candidate.distpsnr3',5]},
+                                                 {'$lt': ['$candidate.srmag3',17]}] }]},
+                                       {'$not': [{'$and': [{'$lt': ['$candidate.distpsnr1',60]},
+                                                 {'$lt': ['$candidate.sgscore1',0.5]}] }]},
+                                       {'$not': [{'$and': [{'$lt': ['$candidate.distpsnr2',60]},
+                                                 {'$lt': ['$candidate.sgscore1',0.5]}] }]},
+                                       {'$not': [{'$and': [{'$lt': ['$candidate.distpsnr3',60]},
+                                                 {'$lt': ['$candidate.sgscore1',0.5]}] }]},]}
 
-    basefilter = {'candidate.jd': {'$gt': 2450000.5, '$lt': 2500000.0},
-                  'candidate.field': int(field), 
-                  '$or': [{'classifications.braai': {'$gt': 0.5}}, {'candidate.drb': {'$gt': 0.5} }],
                  }
-
-    alertfilter1 = {    'candidate.distnr': {'$lt': 1.5},
-                        'candidate.magnr': {'$gt': 14.0},
-                        'candidate.isdiffpos': {'$in': ['f','0']}
-                       }
-
 
 
     # add the basefilter to 
-    alertfilter1.update(basefilter)
+    jdstart = 2458194.5 # official ZTF start jd
+    jdend =   2459694.5+10 # current jd
+    steps = int((jdend-jdstart)/stepsize)+1
+    print("%d steps" %steps)
+    
+    alertfilters = [{**{'candidate.jd': {'$gte': jdstart+stepsize*n, '$lt': jdstart+stepsize*(n+1)}},**basefilter} for n in np.arange(steps)]
+
+
+    
+    #print(alertfilters)
 
     # actually make the queries
     qs = list([])
-    for alertfilter in [alertfilter1,]:
+    for alertfilter in alertfilters:
         q = {"query_type": "find",
              "query": {
                  "catalog": "ZTF_alerts",
@@ -93,10 +110,10 @@ def get_alertdata(q,k):
     
     # get data
     print('starting query')
+    print(q)
     r = k.query(query=q)
-    #print(r)
+    print(r)
     data = r.get('data')
-    print(len(data))
 
     # combine into a single dataframe
     output = pd.concat([
@@ -121,10 +138,6 @@ def run_CVqueries(k,field):
     # clean
     output.replace(-999.0,np.nan,inplace=True)
 
-    # correct magnitude
-    if 'magpsf' in output.keys():
-        output['mag'] = -2.5*np.log10(10**(-0.4*output['magpsf']) + 10**(-0.4*output['magnr']))
-
     return output
 
 
@@ -137,7 +150,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # savedir
-    savedir = "./queries"
+    savedir = "./queries2"
 
     # make a directory to store the query results
     os.system("mkdir -p %s" %savedir)
