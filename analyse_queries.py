@@ -54,13 +54,28 @@ df_summary['N_noflux_1s_g'] = gb.apply(lambda x: np.sum(x['noflux_1s'][x['fid']=
 df_summary['N_noflux_1s_r'] = gb.apply(lambda x: np.sum(x['noflux_1s'][x['fid']==2]))
 df_summary['WDRD'] = np.isin(df_summary.index,WDRDs['ids'])
 
+# match with QSO catalogue
+from astropy import units as u
+from astropy.coordinates import SkyCoord
+c1 = SkyCoord(df_summary['ra'].values*u.deg,df_summary['dec'].values*u.deg, frame='icrs')
+milliquas = np.loadtxt("milliquas.txt",dtype=float,usecols=(0,1))
+c2 = SkyCoord(milliquas[:,0]*u.deg,milliquas[:,1]*u.deg, frame='icrs')
+idx,d2d,d3d = c1.match_to_catalog_sky(c2)
+
+df_summary['qso'] = False
+df_summary.loc[d2d.arcsec<3,'qso'] = True
+
 
 select = (df_summary['N_noflux_1s_r']>0) & (df_summary['N_noflux_1s_g']>0) & (df_summary['sgmag1']-df_summary['srmag1']<1)
 
 
-for m in [~df_summary['WDRD'],df_summary['WDRD']]:
+for m in [~df_summary['WDRD'],df_summary['WDRD'],df_summary['qso']]:
     plt.plot(df_summary['srmag1'][m]-df_summary['simag1'][m],
              df_summary['sgmag1'][m]-df_summary['srmag1'][m],'.')
+
+plt.show()
+
+stop
 
 for m in [~df_summary['WDRD'],df_summary['WDRD']]:
     plt.plot((df_summary['N_noflux_1s_r']+df_summary['N_noflux_1s_g'])[m],
