@@ -15,7 +15,7 @@ import time
 
 
 
-def make_queries(field,stepsize=20):
+def make_queries(field):
     """ make the queries"""
     
     # define the projection; the fields to get from the database
@@ -50,29 +50,17 @@ def make_queries(field,stepsize=20):
 
     # define the filters
 
-    basefilter = {'candidate.field': int(field), 
+    basefilter = {'candidate.jd': {'$gt': 2450000.5, '$lt': 2500000.0},
+                  'candidate.field': int(field), 
                   '$or': [{'classifications.braai': {'$gt': 0.5}}, {'candidate.drb': {'$gt': 0.5} }],
                   'candidate.distnr': {'$lt': 1.5},
                   'candidate.magnr': {'$gt': 14.0},
-                  'candidate.magnr': {'$gt': 14.0},
                   'candidate.isdiffpos': {'$in': ['f','0']},
                   '$and': [{'$expr':{'$lt': [{'$subtract': ['$candidate.magpsf', '$candidate.magnr']},0.5]}},
-                          {'$expr':{'$lt': [{'$subtract': ['$candidate.magnr', '$candidate.magpsf']},0.5]}},
-]
+                          {'$expr':{'$lt': [{'$subtract': ['$candidate.magnr', '$candidate.magpsf']},0.5]}},]
                  }
-
-
-    # add the basefilter to 
-    jdstart = 2458194.5 # official ZTF start jd
-    jdend =   2459694.5 # current jd
-    steps = int((jdend-jdstart)/stepsize)+1
-    print("%d steps" %steps)
     
-    alertfilters = [{**{'candidate.jd': {'$gte': jdstart+stepsize*n, '$lt': jdstart+stepsize*(n+1)}},**basefilter} for n in np.arange(steps)]
-
-
-    
-    #print(alertfilters)
+    alertfilters = [basefilter,]
 
     # actually make the queries
     qs = list([])
@@ -161,7 +149,7 @@ if __name__ == "__main__":
         secrets = json.load(f)
 
     # setup the connection to the kowalski database
-    k = Kowalski(**secrets['kowalski'], verbose=False)
+    k = Kowalski(**secrets['kowalski'], verbose=False,timeout=3600*8)
 
     # 
     fields = np.r_[np.arange(244,880)[::-1],np.arange(1240,1895)[::-1]]

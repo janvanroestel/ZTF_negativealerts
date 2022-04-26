@@ -80,3 +80,7 @@ plt.show()
 for mask in [~data['noflux_1s'],data['noflux_1s']]:
     plt.plot(data['magnr'][mask],data['ratio'][mask],'.')
 plt.show()
+
+for mask in [~data['WDRD'],data['WDRD']]:
+    plt.plot(data['magnr'][mask],data['ratio'][mask],'.')
+plt.show()
