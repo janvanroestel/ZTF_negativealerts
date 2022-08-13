@@ -16,7 +16,7 @@ fracflux_remain = 1-fluxPSF/fluxNR = (fluxNR - fluxPSF)/(fluxNR) = 1 - 10**(-0.4
 
 fracflux_remain is the fraction of light still remaining. If frac remain = 0; the source is completely gone (which means deltamag = 0). Below is a table with some values to get some intuition with the conversion.
 
-deltamag | fracflux_remain \
+deltamag | fracflux_remain | comment 
 ---------|--------|-----------------------
 -0.1     |-0.09   | unphysical, but negative deltamag values can happen due to statistical fluctuations
 0        |0       | the source disappeared
