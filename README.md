@@ -5,7 +5,7 @@ search and analysis of sources with negative alerts
 # on negative alerts
 a negative alert means that there was a source in the reference that is not present in the science image. This can be an eclipsing binary, fading AGN or CV, or a star that faded for some other reason.
 
-Because of this, negative alert PSF magnitudes need to be interpreted in relation to the reference magnitude. Here is some math that allows you to convert the deltamag to a fraction of light remaining:
+Because of this, negative alert PSF magnitudes need to be interpreted in relation to the reference magnitude. For a definition of the magPSF and magNR values; https://zwickytransientfacility.github.io/ztf-avro-alert/schema.html). Here is some math that allows you to convert the deltamag to a fraction of light remaining:
 
 deltaMag = magPSF - magNR # this is usually a positive number \
 deltaMag = (-2.5*log10(fluxPSF)) - (-2.5*log(fluxNR)) \
