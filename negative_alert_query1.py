@@ -1,5 +1,5 @@
 '''
-Query Kowalski for alerts that could be cataclysmic variables
+Query Kowalski for negative alerts that have a reference source in the ref images
 '''
 
 import os
@@ -113,7 +113,7 @@ def get_alertdata(q,k,max_retry_attempts=5):
 
 
 
-def run_CVqueries(k,field):
+def run_queries(k,field):
     """ run all queries, combine the results, and do some cleaning
     """
 
@@ -162,7 +162,7 @@ if __name__ == "__main__":
             continue
         print('Query field %d' %f)
 
-        output = run_CVqueries(k,f)
+        output = run_queries(k,f)
         output.to_csv(outname,index=False)
 
 

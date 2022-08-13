@@ -66,36 +66,8 @@ df_summary['qso'] = False
 df_summary.loc[d2d.arcsec<3,'qso'] = True
 
 
-select = (df_summary['N_noflux_1s_r']>0) & (df_summary['N_noflux_1s_g']>0) & (df_summary['sgmag1']-df_summary['srmag1']<1)
-
-
-for m in [~df_summary['WDRD'],df_summary['WDRD'],df_summary['qso']]:
-    plt.plot(df_summary['srmag1'][m]-df_summary['simag1'][m],
-             df_summary['sgmag1'][m]-df_summary['srmag1'][m],'.')
+# make an overview figure
+plt.plot(data['magnr'],data['magpsf'] ,'k,')
 
 plt.show()
 
-stop
-
-for m in [~df_summary['WDRD'],df_summary['WDRD']]:
-    plt.plot((df_summary['N_noflux_1s_r']+df_summary['N_noflux_1s_g'])[m],
-             (df_summary['N_noflux_1s_g']/(df_summary['N_noflux_1s_r']+df_summary['N_noflux_1s_g']))[m],'.')
-plt.show()
-
-for m in [~df_summary['WDRD'],df_summary['WDRD']]:
-    plt.plot(
-    #(df_summary['N_noflux_1s_r']+df_summary['N_noflux_1s_g'])[m]/(df_summary['fid1']+df_summary['fid2'])[m],
-    (df_summary['ndethist'])[m],
-    (df_summary['fid1']+df_summary['fid2'])[m],
-    '.')
-plt.show()
-
-
-
-for mask in [~data['noflux_1s'],data['noflux_1s']]:
-    plt.plot(data['magnr'][mask],data['ratio'][mask],'.')
-plt.show()
-
-for mask in [~data['WDRD'],data['WDRD']]:
-    plt.plot(data['magnr'][mask],data['ratio'][mask],'.')
-plt.show()
