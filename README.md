@@ -1,6 +1,12 @@
 # ZTF_negativealerts
 search and analysis of sources with negative alerts
 
+negative_alert_query1.py downloads all negative alerts with a detected reference source (with some limtations, see code)
+negative_alert_query2.py downloads all negative alerts without(!) a detected reference source. Almost all are junk...
+analyse_queries.py takes all alerts that were downloaded and groups them by ZTFid, does some basics stats and matches objects with the Milliquaz catalogue etc.
+
+Note; this code uses the ZTF-kowalski alert database for which a password is needed
+
 
 # on negative alerts
 a negative alert means that there was a source in the reference that is not present in the science image. This can be an eclipsing binary, fading AGN or CV, or a star that faded for some other reason.
